@@ -27,8 +27,6 @@ export const config = {
   outboundSecret: e.OPERATOR_OUTBOUND_SECRET || 'outs_demo_operator_outbound_secret_001',
 
   aggregatorRestUrl: e.AGGREGATOR_REST_URL || 'http://localhost:4000',
-  aggregatorAdminKey: e.AGGREGATOR_ADMIN_KEY || 'change-me-admin-key',
-  enabledGames: (e.ENABLED_GAMES || 'duck_hunt_96').split(',').map((s) => s.trim()).filter(Boolean),
 
   currency: e.CURRENCY || 'USD',
   clockSkewSeconds: 30,

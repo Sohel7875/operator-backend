@@ -23,29 +23,6 @@ function signedHeaders(method, path, bodyStr) {
   };
 }
 
-/** Register/refresh this operator in the aggregator (admin-key protected, idempotent). */
-export async function selfRegister() {
-  const url = `${config.aggregatorRestUrl}/v1/admin/operators/register`;
-  const body = {
-    operatorId: config.operatorId,
-    name: config.operatorName,
-    apiKey: config.apiKey,
-    inboundSecret: config.inboundSecret,
-    outboundSecret: config.outboundSecret,
-    walletApiBaseUrl: config.publicUrl, // aggregator calls {publicUrl}/bet, /win, ...
-    walletAdapter: 'standard',
-    currencies: [config.currency],
-    enabledGames: config.enabledGames,
-    status: 'active',
-  };
-  const res = await axios.post(url, body, {
-    headers: { 'Content-Type': 'application/json', 'X-Admin-Key': config.aggregatorAdminKey },
-    validateStatus: () => true,
-  });
-  if (res.status !== 200) throw new Error(`register failed ${res.status}: ${JSON.stringify(res.data)}`);
-  return res.data.data || res.data;
-}
-
 /** Fetch the games the aggregator has APPROVED for this operator (enabledGames). */
 export async function fetchGames() {
   const path = '/v1/operator/games';
@@ -71,4 +48,4 @@ export async function launch({ operatorPlayerId, gameCode, currency }) {
   return res.data.data; // { launchUrl, token, socketUrl, expiresIn }
 }
 
-export default { selfRegister, launch, fetchGames };
+export default { launch, fetchGames };
