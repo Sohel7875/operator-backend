@@ -16,7 +16,7 @@ router.get('/games', async (req, res) => {
     const games = await fetchGames();
     res.json(games); // [{ game_code, name, provider, rtp, thumbnail, ... }]
   } catch (err) {
-    console.error('games fetch error:', err.message);
+    console.error('games fetch error:', err.msg);
     res.status(502).json({ error: err.message });
   }
 });
@@ -46,9 +46,9 @@ router.get('/transactions', async (req, res) => {
 /** Launch a game for the logged-in player → operator signs + calls the aggregator. */
 router.post('/launch', async (req, res) => {
   try {
-    const { gameCode, currency } = req.body || {};
+    const { gameCode, currency, mode } = req.body || {};
     if (!gameCode) return res.status(400).json({ error: 'gameCode required' });
-    const out = await launch({ operatorPlayerId: req.userId, gameCode, currency });
+    const out = await launch({ operatorPlayerId: req.userId, gameCode, currency, mode });
     res.json(out); // { launchUrl, token, socketUrl, expiresIn }
   } catch (err) {
     console.error('launch error:', err.message);

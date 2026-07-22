@@ -27,6 +27,7 @@ function signedHeaders(method, path, bodyStr) {
 export async function fetchGames() {
   const path = '/v1/operator/games';
   const bodyStr = ''; // GET — empty body; aggregator hashes sha256('')
+  console.log(`${config.aggregatorRestUrl}${path}`)
   const res = await axios.get(`${config.aggregatorRestUrl}${path}`, {
     headers: signedHeaders('GET', path, bodyStr),
     validateStatus: () => true,
@@ -36,9 +37,9 @@ export async function fetchGames() {
 }
 
 /** Request a game launch on behalf of a player. */
-export async function launch({ operatorPlayerId, gameCode, currency }) {
+export async function launch({ operatorPlayerId, gameCode, currency, mode = 'real' }) {
   const path = '/v1/operator/game/launch';
-  const payload = { operatorPlayerId, gameCode, currency: currency || config.currency, mode: 'real', lang: 'en' };
+  const payload = { operatorPlayerId, gameCode, currency: currency || config.currency, mode: mode === 'demo' ? 'demo' : 'real', lang: 'en' };
   const bodyStr = JSON.stringify(payload);
   const res = await axios.post(`${config.aggregatorRestUrl}${path}`, bodyStr, {
     headers: signedHeaders('POST', path, bodyStr),
