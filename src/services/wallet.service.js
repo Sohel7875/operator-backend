@@ -104,8 +104,34 @@ export async function deposit({ userId, amount }) {
   return { balance: wallet.balance, currency: wallet.currency };
 }
 
+/**
+ * Player withdrawal (cash out). Reduces the balance by `amount`; pass amount ===
+ * current balance (or 'all') to drain the wallet to 0 for testing. Never lets the
+ * balance go negative — the atomic guard only debits if funds suffice.
+ */
+export async function withdraw({ userId, amount }) {
+  const current = await balanceOf(userId);
+  const amt = amount === 'all' ? current : Number(amount);
+  if (!(amt > 0)) throw new Error('amount must be > 0');
+  if (amt > current) throw new Error('amount exceeds balance');
+
+  const txnId = `wd:${crypto.randomBytes(8).toString('hex')}`;
+  await WalletTransaction.create({ userId, txnId, type: 'withdraw', amount: amt, status: 'pending' });
+  const wallet = await Wallet.findOneAndUpdate(
+    { userId, balance: { $gte: amt } },
+    { $inc: { balance: -amt } },
+    { new: true }
+  );
+  if (!wallet) {
+    await WalletTransaction.updateOne({ txnId }, { status: 'failed' });
+    throw new Error('amount exceeds balance');
+  }
+  await WalletTransaction.updateOne({ txnId }, { status: 'success', balanceAfter: wallet.balance });
+  return { balance: wallet.balance, currency: wallet.currency };
+}
+
 export async function getTransactions(userId, limit = 50) {
   return WalletTransaction.find({ userId }).sort({ createdAt: -1 }).limit(limit).lean();
 }
 
-export default { getBalance, bet, win, rollback, deposit, getTransactions };
+export default { getBalance, bet, win, rollback, deposit, withdraw, getTransactions };

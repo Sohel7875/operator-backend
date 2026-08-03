@@ -38,6 +38,17 @@ router.post('/deposit', async (req, res) => {
   }
 });
 
+// Withdraw (cash out). Pass { amount } or { amount: 'all' } to drain to 0.
+router.post('/withdraw', async (req, res) => {
+  try {
+    const amount = req.body?.amount === 'all' ? 'all' : Number(req.body?.amount);
+    const out = await wallet.withdraw({ userId: req.userId, amount });
+    res.json(out);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
 router.get('/transactions', async (req, res) => {
   const txns = await wallet.getTransactions(req.userId, Number(req.query.limit) || 50);
   res.json(txns);
