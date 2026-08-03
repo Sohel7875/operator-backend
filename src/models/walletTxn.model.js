@@ -13,7 +13,7 @@ const walletTxnSchema = new Schema(
   {
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
     txnId: { type: String, required: true, unique: true },
-    type: { type: String, enum: ['bet', 'win', 'rollback', 'deposit'], required: true },
+    type: { type: String, enum: ['bet', 'win', 'rollback', 'deposit', 'withdraw'], required: true },
     amount: { type: Number, required: true, default: 0 },
     status: { type: String, enum: ['pending', 'success', 'failed'], default: 'pending', index: true },
     balanceAfter: { type: Number, default: null },
